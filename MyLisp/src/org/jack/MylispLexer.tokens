@@ -1,0 +1,12 @@
+WS=8
+BOOLEAN=6
+NIL=5
+SYMBOL=7
+COMMENT=9
+T__1=1
+T__0=2
+STRING=3
+NUMBER=4
+'('=2
+')'=1
+'nil'=5
