@@ -35,7 +35,10 @@ public class LiteralNode extends AbstractNode {
 		this.value = value;
 	}
 
-	
+	@Override
+	public String toString(){
+		return value.toString();
+	}
 	
 	
 

@@ -35,6 +35,7 @@ public abstract class AbstractNode {
 		this.next = next;
 	}
 	
+
 	
 	
 }

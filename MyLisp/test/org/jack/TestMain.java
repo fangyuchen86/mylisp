@@ -8,7 +8,7 @@ public class TestMain {
 
 	@Test
 	public void test() {
-		AbstractNode node = new LiteralNode(1, null);
+		
 		
 	}
 
