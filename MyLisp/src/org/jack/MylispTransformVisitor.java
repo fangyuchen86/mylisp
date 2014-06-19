@@ -1,6 +1,7 @@
 package org.jack;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.antlr.v4.runtime.misc.NotNull;
@@ -34,6 +35,7 @@ public class MylispTransformVisitor extends MylispBaseVisitor<AbstractNode> {
 			children.add(headChild);
 			headChild = headChild.getNext();
 		}
+		Collections.reverse(children);
 		return children;
 	}
 	
@@ -44,17 +46,20 @@ public class MylispTransformVisitor extends MylispBaseVisitor<AbstractNode> {
 			return new LiteralNode(type, node.getText());
 		}else if(type == MylispLexer.NUMBER){
 			return new LiteralNode(type, new Double(node.getText()));
+		}else if(type == MylispLexer.NIL){
+			return new LiteralNode(type, Nil.getNil());
+		}else if(type == MylispLexer.BOOLEAN){
+			return new LiteralNode(type, Boolean.parseBoolean(node.getText()));
 		}
-		
 		return null;
 	}
 	
 	@Override
 	protected AbstractNode aggregateResult(AbstractNode aggregate, AbstractNode nextResult) {
-		if(aggregate == null){
+		if(nextResult != null){
+			nextResult.setNext(aggregate);
 			return nextResult;
 		}else{
-			aggregate.setNext(nextResult);
 			return aggregate;
 		}
 	}

@@ -15,7 +15,12 @@ class Test {
 			("hello")
 			(god ("like" 3.13) (world "hello"))
 		'''
-		
+
+//			def input =
+//		   '''
+//			(god world test)
+//		   '''
+		   
 		ANTLRInputStream inputSteam = new ANTLRInputStream(input)
 		
 		MylispLexer lexer = new MylispLexer(inputSteam);
