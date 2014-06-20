@@ -1,6 +1,6 @@
 package org.jack;
 
-public class FormNode extends AbstractNode {
+public class FunNode  extends AbstractNode {
 
 	@Override
 	public void transform() {
@@ -10,7 +10,7 @@ public class FormNode extends AbstractNode {
 	
 	@Override
 	public String toString(){
-		StringBuilder s = new StringBuilder("( Form");
+		StringBuilder s = new StringBuilder("( Fun");
 		for(AbstractNode node : this.getChildren()){
 			s.append(" " + node.toString());
 		}

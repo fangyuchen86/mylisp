@@ -12,8 +12,8 @@ class Test {
 	public void test() {
 		def input = 
 		'''
-			("hello")
-			(god ("like" 3.13) (world "hello"))
+			(("god" "thank") "like")
+			(declare ("hello" (fun "test")))
 		'''
 
 //			def input =
