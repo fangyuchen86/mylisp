@@ -1,21 +1,49 @@
 package org.jack;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.antlr.v4.runtime.misc.NotNull;
+import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 public class MylispTransformVisitor extends MylispBaseVisitor<AbstractNode> {
 	
 	@Override public AbstractNode visitForm(@NotNull MylispParser.FormContext ctx){
 		
-		FormNode form = new FormNode();
+		AbstractNode node = null;
+		
+		
 		
 		AbstractNode headChild =  visitChildren(ctx); 
-		List<AbstractNode> children = createChildrenList(form, headChild);
-		form.setChildren(children);
-		return form; 
+		List<AbstractNode> children = createChildrenList(headChild);
+		
+		if(children.size() > 0 && children.get(0) instanceof LiteralNode){
+			LiteralNode literalNode = (LiteralNode) children.get(0);
+			if(literalNode.getType() == MylispLexer.SYMBOL && literalNode.getValue().equals("declare")){
+				node = new DeclareNode();
+				List<AbstractNode> newChildren = children.subList(1, children.size());
+				node.setChildren(newChildren);
+				setParent(node, newChildren);
+			} else if(literalNode.getType() == MylispLexer.SYMBOL && literalNode.getValue().equals("fun")){
+				node = new FunNode();
+				List<AbstractNode> newChildren = children.subList(1, children.size());
+				node.setChildren(newChildren);
+				setParent(node, newChildren);
+			}
+			else{
+				node = new CallNode();
+				node.setChildren(children);
+				setParent(node, children);
+			}
+		}else{
+			node = new CallNode();
+			node.setChildren(children);
+			setParent(node, children);
+		}
+		
+		return node; 
 	}
 	
 	@Override public AbstractNode visitFile(@NotNull MylispParser.FileContext ctx) { 
@@ -27,6 +55,12 @@ public class MylispTransformVisitor extends MylispBaseVisitor<AbstractNode> {
 		return file;
 	}
 	
+	private void setParent(AbstractNode parent, List<AbstractNode> list){
+		for(AbstractNode n : list){
+			n.setParent(parent);
+		}
+	}
+	
 	private List<AbstractNode> createChildrenList(AbstractNode parent, AbstractNode headChild){
 		List<AbstractNode> children = new ArrayList<AbstractNode>();
 		while(headChild != null){
@@ -34,6 +68,17 @@ public class MylispTransformVisitor extends MylispBaseVisitor<AbstractNode> {
 			children.add(headChild);
 			headChild = headChild.getNext();
 		}
+		Collections.reverse(children);
+		return children;
+	}
+	
+	private List<AbstractNode> createChildrenList(AbstractNode headChild){
+		List<AbstractNode> children = new ArrayList<AbstractNode>();
+		while(headChild != null){
+			children.add(headChild);
+			headChild = headChild.getNext();
+		}
+		Collections.reverse(children);
 		return children;
 	}
 	
@@ -44,18 +89,26 @@ public class MylispTransformVisitor extends MylispBaseVisitor<AbstractNode> {
 			return new LiteralNode(type, node.getText());
 		}else if(type == MylispLexer.NUMBER){
 			return new LiteralNode(type, new Double(node.getText()));
+		}else if(type == MylispLexer.NIL){
+			return new LiteralNode(type, Nil.getNil());
+		}else if(type == MylispLexer.BOOLEAN){
+			return new LiteralNode(type, Boolean.parseBoolean(node.getText()));
 		}
-		
 		return null;
 	}
 	
 	@Override
 	protected AbstractNode aggregateResult(AbstractNode aggregate, AbstractNode nextResult) {
-		if(aggregate == null){
+		if(nextResult != null){
+			nextResult.setNext(aggregate);
 			return nextResult;
 		}else{
-			aggregate.setNext(nextResult);
 			return aggregate;
 		}
+	}
+	
+	@Override
+	protected boolean shouldVisitNextChild(@NotNull RuleNode node, AbstractNode currentResult) {
+		return true;
 	}
 }

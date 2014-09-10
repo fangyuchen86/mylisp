@@ -12,10 +12,15 @@ class Test {
 	public void test() {
 		def input = 
 		'''
-			("hello")
-			(god ("like" 3.13) (world "hello"))
+			(("god" "thank") "like")
+			(declare ("hello" (fun "test")))
 		'''
-		
+
+//			def input =
+//		   '''
+//			(god world test)
+//		   '''
+		   
 		ANTLRInputStream inputSteam = new ANTLRInputStream(input)
 		
 		MylispLexer lexer = new MylispLexer(inputSteam);

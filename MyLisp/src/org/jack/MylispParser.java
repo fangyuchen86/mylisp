@@ -50,8 +50,14 @@ public class MylispParser extends Parser {
 		public List<FormContext> form() {
 			return getRuleContexts(FormContext.class);
 		}
+		public List<LiteralContext> literal() {
+			return getRuleContexts(LiteralContext.class);
+		}
 		public FormContext form(int i) {
 			return getRuleContext(FormContext.class,i);
+		}
+		public LiteralContext literal(int i) {
+			return getRuleContext(LiteralContext.class,i);
 		}
 		public FileContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -71,16 +77,32 @@ public class MylispParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(9);
+			setState(10);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << STRING) | (1L << NUMBER) | (1L << NIL) | (1L << BOOLEAN) | (1L << SYMBOL))) != 0)) {
 				{
-				{
-				setState(6); form();
+				setState(8);
+				switch (_input.LA(1)) {
+				case 2:
+					{
+					setState(6); form();
+					}
+					break;
+				case STRING:
+				case NUMBER:
+				case NIL:
+				case BOOLEAN:
+				case SYMBOL:
+					{
+					setState(7); literal();
+					}
+					break;
+				default:
+					throw new NoViableAltException(this);
 				}
 				}
-				setState(11);
+				setState(12);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
@@ -101,11 +123,14 @@ public class MylispParser extends Parser {
 		public List<FormContext> form() {
 			return getRuleContexts(FormContext.class);
 		}
+		public List<LiteralContext> literal() {
+			return getRuleContexts(LiteralContext.class);
+		}
 		public FormContext form(int i) {
 			return getRuleContext(FormContext.class,i);
 		}
-		public LiteralContext literal() {
-			return getRuleContext(LiteralContext.class,0);
+		public LiteralContext literal(int i) {
+			return getRuleContext(LiteralContext.class,i);
 		}
 		public FormContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -123,40 +148,39 @@ public class MylispParser extends Parser {
 		enterRule(_localctx, 2, RULE_form);
 		int _la;
 		try {
-			setState(21);
-			switch (_input.LA(1)) {
-			case STRING:
-			case NUMBER:
-			case NIL:
-			case BOOLEAN:
-			case SYMBOL:
-				enterOuterAlt(_localctx, 1);
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(13); match(2);
+			setState(18);
+			_errHandler.sync(this);
+			_la = _input.LA(1);
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << STRING) | (1L << NUMBER) | (1L << NIL) | (1L << BOOLEAN) | (1L << SYMBOL))) != 0)) {
 				{
-				setState(12); literal();
-				}
-				break;
-			case 2:
-				enterOuterAlt(_localctx, 2);
-				{
-				setState(13); match(2);
-				setState(17);
-				_errHandler.sync(this);
-				_la = _input.LA(1);
-				while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << STRING) | (1L << NUMBER) | (1L << NIL) | (1L << BOOLEAN) | (1L << SYMBOL))) != 0)) {
-					{
+				setState(16);
+				switch (_input.LA(1)) {
+				case 2:
 					{
 					setState(14); form();
 					}
+					break;
+				case STRING:
+				case NUMBER:
+				case NIL:
+				case BOOLEAN:
+				case SYMBOL:
+					{
+					setState(15); literal();
 					}
-					setState(19);
-					_errHandler.sync(this);
-					_la = _input.LA(1);
+					break;
+				default:
+					throw new NoViableAltException(this);
 				}
-				setState(20); match(1);
 				}
-				break;
-			default:
-				throw new NoViableAltException(this);
+				setState(20);
+				_errHandler.sync(this);
+				_la = _input.LA(1);
+			}
+			setState(21); match(1);
 			}
 		}
 		catch (RecognitionException re) {
@@ -215,13 +239,14 @@ public class MylispParser extends Parser {
 
 	public static final String _serializedATN =
 		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3\13\34\4\2\t\2\4\3"+
-		"\t\3\4\4\t\4\3\2\7\2\n\n\2\f\2\16\2\r\13\2\3\3\3\3\3\3\7\3\22\n\3\f\3"+
-		"\16\3\25\13\3\3\3\5\3\30\n\3\3\4\3\4\3\4\2\2\5\2\4\6\2\3\3\2\5\t\33\2"+
-		"\13\3\2\2\2\4\27\3\2\2\2\6\31\3\2\2\2\b\n\5\4\3\2\t\b\3\2\2\2\n\r\3\2"+
-		"\2\2\13\t\3\2\2\2\13\f\3\2\2\2\f\3\3\2\2\2\r\13\3\2\2\2\16\30\5\6\4\2"+
-		"\17\23\7\4\2\2\20\22\5\4\3\2\21\20\3\2\2\2\22\25\3\2\2\2\23\21\3\2\2\2"+
-		"\23\24\3\2\2\2\24\26\3\2\2\2\25\23\3\2\2\2\26\30\7\3\2\2\27\16\3\2\2\2"+
-		"\27\17\3\2\2\2\30\5\3\2\2\2\31\32\t\2\2\2\32\7\3\2\2\2\5\13\23\27";
+		"\t\3\4\4\t\4\3\2\3\2\7\2\13\n\2\f\2\16\2\16\13\2\3\3\3\3\3\3\7\3\23\n"+
+		"\3\f\3\16\3\26\13\3\3\3\3\3\3\4\3\4\3\4\2\2\5\2\4\6\2\3\3\2\5\t\34\2\f"+
+		"\3\2\2\2\4\17\3\2\2\2\6\31\3\2\2\2\b\13\5\4\3\2\t\13\5\6\4\2\n\b\3\2\2"+
+		"\2\n\t\3\2\2\2\13\16\3\2\2\2\f\n\3\2\2\2\f\r\3\2\2\2\r\3\3\2\2\2\16\f"+
+		"\3\2\2\2\17\24\7\4\2\2\20\23\5\4\3\2\21\23\5\6\4\2\22\20\3\2\2\2\22\21"+
+		"\3\2\2\2\23\26\3\2\2\2\24\22\3\2\2\2\24\25\3\2\2\2\25\27\3\2\2\2\26\24"+
+		"\3\2\2\2\27\30\7\3\2\2\30\5\3\2\2\2\31\32\t\2\2\2\32\7\3\2\2\2\6\n\f\22"+
+		"\24";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {
