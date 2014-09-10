@@ -33,6 +33,7 @@
 
 (struct Closure (args exp env))
 
+(struct Primitive-Fun (fun))
 (struct Evfun-Cont (ncont vals))
 
 (struct Apply-Cont (ncont fun-val))
@@ -72,13 +73,7 @@
 
 
 
-(define (interp-primitive-fun fun-name args vals)
-  (match fun-name
-    ['+ (apply + vals)]
-    ['- (apply - vals)]
-    ['* (apply * vals)]
-    ['/ (apply / vals)]
-    ['eq? (apply eq? vals)]))
+
 
 (define evaluate-arguments
   (lambda (vals env cont)
@@ -113,6 +108,7 @@
       [(? boolean? x) (resume cont x env)]
       [(? string? x) (resume cont x env)]
       [(? number? x) (resume cont x env)]
+      [(? procedure? x) (resume cont x env)]
       [(? symbol? x) (resume cont (lookup x env) env)]
       [`(if ,test ,exp1 ,exp2) 
        (interp1 test env (If-Cont cont exp1 exp2))]
@@ -123,6 +119,7 @@
       [(list fun-val vals ...) (interp1 fun-val env (Evfun-Cont cont vals))])))
 
 ;;for test
+(define env0 (multi-ext-env '(+ - * / > < eq?) (list + - * / > < eq?) '()))
 (define env1 (ext-env 'a 6 '()))
 (define env (ext-env 'b 106 env1))
 
@@ -155,5 +152,9 @@
 (check-equal? (interp1 '(begin (define e (lambda (i x) x)) (e a b)) env3 end-cont) 100)
 
 
-(define env4 (multi-ext-env '(a b) '(1 100) '()))
-(check-equal? (interp1 '(begin (define e (lambda (i x) (+ i x))) (e a b)) env4 end-cont) 100)
+(define env4 (multi-ext-env '(a b) '(1 100) env0))
+(check-equal? (interp1 '(+ 2 2) env4 end-cont) 100)
+
+(check-equal? (interp1 '(begin (define e (lambda (i x) (+ i x))) (e a b)) env4 end-cont) 101)
+(check-equal? (interp1
+               '(begin (define e (lambda (a b) (if (> a 10) (+ a b ) (- a b)))) (e a b)) env4 end-cont) 101)
