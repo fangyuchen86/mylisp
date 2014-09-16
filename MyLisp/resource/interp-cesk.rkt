@@ -42,7 +42,9 @@
 
 (struct Gather-Cont (ncont val))
 
+(struct Let*-Cont (ncont bindings body))
 
+(struct Bind-Cont (ncont bind-name))
 
 (define resume
   (lambda (cont value env)
@@ -69,7 +71,11 @@
          [(Closure args exp env)
           (interp1 exp (multi-ext-env args value env) ncont)]
          [(? procedure? fun)
-          (resume ncont (apply fun value) env)])])))
+          (resume ncont (apply fun value) env)])]
+      [(Bind-Cont ncont bind-name)
+       (resume ncont (void) (ext-env bind-name (get-value value) env))]
+      [(Let*-Cont ncont bindings body)
+       ])))
 
 (define evaluate-arguments
   (lambda (vals env cont)
@@ -97,6 +103,14 @@
           (set-box! b v)
           (void)))))
 
+(define evaluate-let*
+  (lambda (bindings env body cont)
+    (let [(len (length bindings))]
+      (cond
+       [(eq? len 0) (resume cont (void))]
+       [(eq? len 1) (interp1 (cadr bindings) env (Bind-Cont cont (caar bindings)))]
+       [else (let ([new-cont (Let*-Cont cont (cdr bindings) body)])
+               (interp1 (cadr bindings) env (Bind-Cont new-cont (caar bindings))))]))))
 
 (define interp1
   (lambda (exp env cont)
@@ -112,6 +126,7 @@
       [`(set! ,x ,exp) (interp1 exp env (Set-Cont cont x))]
       [`(define ,x ,exp) (interp1 exp env (Def-Cont cont x))]
       [`(lambda ,args ,exp) (resume cont (Closure args exp env) env)]
+      [`(let* ,bindings ,body) (evaluate-let* bindings env (Let*-Cont cont bindings body))]
       [(list fun-val vals ...) (interp1 fun-val env (Evfun-Cont cont vals))])))
 
 ;;for test
