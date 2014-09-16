@@ -71,10 +71,6 @@
          [(? procedure? fun)
           (resume ncont (apply fun value) env)])])))
 
-
-
-
-
 (define evaluate-arguments
   (lambda (vals env cont)
     (let ([len (length vals)])
@@ -153,8 +149,18 @@
 
 
 (define env4 (multi-ext-env '(a b) '(1 100) env0))
-(check-equal? (interp1 '(+ 2 2) env4 end-cont) 100)
+(check-equal? (interp1 '(+ 2 2) env4 end-cont) 4)
 
 (check-equal? (interp1 '(begin (define e (lambda (i x) (+ i x))) (e a b)) env4 end-cont) 101)
 (check-equal? (interp1
-               '(begin (define e (lambda (a b) (if (> a 10) (+ a b ) (- a b)))) (e a b)) env4 end-cont) 101)
+               '(begin (define e (lambda (a b) (if (> a 10) (+ a b ) (- a b)))) (e a b)) env4 end-cont) -99)
+
+(check-equal? (interp1 '(begin
+                         (define e (lambda (a b)
+                                     (begin
+                                       (define x (+ a b))
+                                       (set! x (+ x 1))
+                                       (if (> x 100)
+                                           x b))
+                                     ))
+                         (e a b)) env4 end-cont) 102)
