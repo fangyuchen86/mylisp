@@ -42,9 +42,7 @@
 
 (struct Gather-Cont (ncont val))
 
-(struct Let*-Cont (ncont bindings body))
-
-(struct Bind-Cont (ncont bind-name))
+(struct Let*-Cont (ncont bindings bind-name body))
 
 (define resume
   (lambda (cont value env)
@@ -71,11 +69,9 @@
          [(Closure args exp env)
           (interp1 exp (multi-ext-env args value env) ncont)]
          [(? procedure? fun)
-          (resume ncont (apply fun value) env)])]
-      [(Bind-Cont ncont bind-name)
-       (resume ncont (void) (ext-env bind-name (get-value value) env))]
-      [(Let*-Cont ncont bindings body)
-       ])))
+          (resume ncont (apply fun value) env)])]      
+      [(Let*-Cont ncont bindings bind-name body)
+       (evaluate-let* bindings (ext-env bind-name (get-value value) env) body ncont)])))
 
 (define evaluate-arguments
   (lambda (vals env cont)
@@ -94,7 +90,7 @@
       (cond 
        [(eq? len 0) (resume cont (void))]
        [(eq? len 1) (interp1 (car seqs) env cont)]
-       [else (interp1 (car seqs) env (Begin-Cont cont (cdr seqs) ))]))))
+       [else (interp1 (car seqs) env (Begin-Cont cont (cdr seqs)))]))))
 
 (define update!
   (lambda (x v env)
@@ -107,10 +103,8 @@
   (lambda (bindings env body cont)
     (let [(len (length bindings))]
       (cond
-       [(eq? len 0) (resume cont (void))]
-       [(eq? len 1) (interp1 (cadr bindings) env (Bind-Cont cont (caar bindings)))]
-       [else (let ([new-cont (Let*-Cont cont (cdr bindings) body)])
-               (interp1 (cadr bindings) env (Bind-Cont new-cont (caar bindings))))]))))
+       [(eq? len 0) (interp1 body env cont)]
+       [else (interp1 (cadr bindings) env (Let*-Cont cont (cdr bindings) (caar bindings) body)))])))
 
 (define interp1
   (lambda (exp env cont)
@@ -126,7 +120,7 @@
       [`(set! ,x ,exp) (interp1 exp env (Set-Cont cont x))]
       [`(define ,x ,exp) (interp1 exp env (Def-Cont cont x))]
       [`(lambda ,args ,exp) (resume cont (Closure args exp env) env)]
-      [`(let* ,bindings ,body) (evaluate-let* bindings env (Let*-Cont cont bindings body))]
+      [`(let* ,bindings ,body) (evaluate-let* bindings env body cont)]
       [(list fun-val vals ...) (interp1 fun-val env (Evfun-Cont cont vals))])))
 
 ;;for test
